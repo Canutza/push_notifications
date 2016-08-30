@@ -46,3 +46,44 @@ entity.push_notifications_token.canonical:
   requirements:
     _permission: 'view device tokens'
     push_notifications_token: \d+
+
+# Push Notification entity routing
+entity.push_notification.collection:
+  path: '/admin/content/push_notifications/list'
+  defaults:
+    _entity_list: 'push_notification'
+    _title: 'Push Notifications List'
+  requirements:
+    _permission: 'view push notification'
+
+entity.push_notification.canonical:
+  path: '/admin/content/push_notifications/{push_notification}'
+  defaults:
+    _entity_view: 'push_notification'
+    _title: 'Push notification'
+  requirements:
+    _permission: 'view push notification'
+
+push_notifications.push_notification_add:
+  path: '/admin/content/push_notifications/add'
+  defaults:
+    _entity_form: push_notification.add
+    _title: 'Add a push notification'
+  requirements:
+    _entity_create_access: 'push_notification'
+
+entity.push_notification.edit_form:
+  path: '/admin/content/push_notifications/{push_notification}/edit'
+  defaults:
+    _entity_form: push_notification.edit
+    _title: 'Edit the push notification'
+  requirements:
+    _entity_access: 'push_notification.edit'
+
+entity.push_notification.delete_form:
+  path: '/admin/content/push_notifications/{push_notification}/delete'
+  defaults:
+    _entity_form: push_notification.delete
+    _title: 'Delete the push notification'
+  requirements:
+    _entity_access: 'push_notification.delete'

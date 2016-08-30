@@ -1,0 +1,5 @@
+push_notifications.push_notification_add:
+  route_name: push_notifications.push_notification_add
+  title: 'Add a push notification'
+  appears_on:
+    - entity.push_notification.collection

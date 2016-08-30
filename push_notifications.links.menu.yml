@@ -4,3 +4,10 @@ push_notifications.push_notifications_config_form:
   description: 'Configuration options for push notifications.'
   parent: system.admin_config_services
   weight: 99
+
+push_notifications.push_notifications_list:
+  title: 'Push notifications'
+  route_name: entity.push_notification.collection
+  description: 'A list of all the push notifications'
+  parent: system.admin_content
+  weight: 100

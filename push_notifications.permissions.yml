@@ -1,9 +1,12 @@
-create device token:
-  title: 'Create device token'
-  description: 'Allows users to create a device token.'
-delete device tokens:
-  title: 'Delete device tokens'
-  description: 'Allows users to delete their own device token.'
+register device token:
+  title: 'Register device token'
+  description: 'Allows users to register a device token.'
+remove device token:
+  title: 'Remove device token'
+  description: 'Allows users to remove a device token.'
+send push notifications:
+  title: 'Send push notifications'
+  description: 'Allow users to send push notifications to devices.'
 view device tokens:
   title: 'View device tokens'
   description: 'Allow users to view device tokens.'
@@ -13,3 +16,14 @@ administer device tokens:
 send push notifications:
   title: 'Send push notifications'
   description: 'Allow users to send push notifications to devices.'
+
+delete push notification:
+  title: 'Delete push notification content.'
+add push notification:
+  title: 'Add push notification content.'
+view push notification:
+  title: 'View push notification content.'
+edit push notification:
+  title: 'Edit push notification content.'
+administer push notification:
+  title: 'Administer push notification settings.'

@@ -19,3 +19,10 @@ push_notifications.token.collection:
   base_route: push_notifications.push_notifications_config_form
   title: Token List
   weight: 30
+
+push_notifications.push_notifications_list:
+  title: Push notifications
+  route_name: entity.push_notification.collection
+  base_route: system.admin_content
+  description: 'A list of all the push notifications'
+  weight: 100
