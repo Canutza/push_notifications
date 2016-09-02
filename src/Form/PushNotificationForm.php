@@ -20,19 +20,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class PushNotificationForm extends ContentEntityForm  {
 
-  private $entity_query;
-
-  public function __construct(QueryFactory $entity_query) {
-    $this->entity_query = $entity_query;
-  }
-
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('entity.query')
-    );
-  }
-
-
   /**
    * {@inheritdoc}
    */
