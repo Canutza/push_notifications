@@ -18,6 +18,14 @@ use Drupal\user\EntityOwnerInterface;
 interface PushNotificationsTokenInterface extends ContentEntityInterface, EntityOwnerInterface {
 
   /**
+   * Sets the entity network.
+   *
+   * @param string $network Network ID.
+   * @return $this
+   */
+  public function setNetwork($network);
+
+  /**
    * Returns the entity token.
    *
    * @return string

@@ -19,12 +19,10 @@ class PushNotificationsTokenLanguageConstraintValidator extends ChoiceValidator 
    */
   public function validate($value, Constraint $constraint) {
     // Determine the language code.
-    // TODO: Needs work, as this is most definitely not the right way to get the data.
-    $typed_data = $this->getTypedData();
-
     // Get the data from the typed data list item.
     // @see https://api.drupal.org/api/drupal/core!core.api.php/group/typed_data/8.2.x,
     // Tree handling.
+    $typed_data = $this->getTypedData();
     $value = $typed_data->value;
 
     // Set available choices to all available languages.

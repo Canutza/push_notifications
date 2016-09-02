@@ -126,6 +126,14 @@ class PushNotificationsToken extends ContentEntityBase implements PushNotificati
   /**
    * {@inheritdoc}
    */
+  public function setNetwork($network) {
+    $this->set('network', $network);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCreatedTime($type = 'short') {
     return \Drupal::service('date.formatter')->format($this->getCreatedTimestamp(), $type);
   }

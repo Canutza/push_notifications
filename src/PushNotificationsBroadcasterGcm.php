@@ -208,7 +208,12 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
           // If the device token is invalid or not registered (anymore because the user
           // has uninstalled the application), remove this device token.
           if ($message_result->error == 'NotRegistered' || $message_result->error == 'InvalidRegistration') {
-            push_notifications_purge_token($tokens[$token_index], PUSH_NOTIFICATIONS_TYPE_ID_ANDROID);
+            $entity_type = 'push_notifications_token';
+            $query = \Drupal::entityQuery($entity_type)->condition('token', $tokens[$token_index]);
+            $entity_ids = $query->execute();
+            $entityTypeManager = \Drupal::entityTypeManager()->getStorage($entity_type);
+            $entity = $entityTypeManager->load(array_shift($entity_ids));
+            $entity->delete();
             \Drupal::logger('push_notifications')->notice("GCM token not valid anymore. Removing token @token", array(
               '@$token' => $tokens[$token_index],
             ));
