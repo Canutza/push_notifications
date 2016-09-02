@@ -37,12 +37,23 @@ class PushNotificationListBuilder extends EntityListBuilder {
   /**
    * {@inheritdoc}
    */
+  public function getOperations(EntityInterface $entity) {
+    $operations = parent::getOperations($entity);
+    // @todo: Create route to send the push notification through a link
+
+    return $operations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildHeader() {
     $header['id'] = $this->t('ID');
     $header['user_id'] = $this->t('Author');
     $header['title'] = $this->t('Title');
     $header['message'] = $this->t('Message');
     $header['created'] = $this->t('Created');
+    $header['pushed'] = $this->t('Pushed');
 
     return $header + parent::buildHeader();
   }
@@ -63,6 +74,7 @@ class PushNotificationListBuilder extends EntityListBuilder {
     );
     $row['message'] = $entity->getMessage();
     $row['created'] = $entity->getCreatedTime();
+    $row['pushed'] = $entity->isPushed() ? $this->t('Yes') : $this->t('No');
 
     return $row + parent::buildRow($entity);
   }

@@ -55,4 +55,19 @@ interface PushNotificationInterface extends ContentEntityInterface, EntityOwnerI
    */
   public function getCreated();
 
+  /**
+   * Returns the push_notification pushed status indicator.
+   *
+   * @return bool
+   *   TRUE if the push_notification is pushed.
+   */
+  public function isPushed();
+
+  /**
+   * Sets the pushed status of a push_notification.
+   *
+   * @todo: add documentation
+   */
+  public function setPushed($pushed);
+
 }

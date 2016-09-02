@@ -45,6 +45,7 @@ use Drupal\user\UserInterface;
  *     "uuid" = "uuid",
  *     "label" = "title",
  *     "langcode" = "langcode",
+ *     "status" = "status",
  *   },
  *   links = {
  *     "canonical" = "/admin/content/push_notifications/{push_notification}",
@@ -97,6 +98,21 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
    */
   public function getMessage() {
     return $this->get('message')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isPushed() {
+    return (bool) $this->getEntityKey('status');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setPushed($pushed) {
+    $this->set('status', $pushed ? NODE_PUBLISHED : NODE_NOT_PUBLISHED);
+    return $this;
   }
 
   /**
@@ -170,7 +186,7 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'author',
-        'weight' => -2,
+        'weight' => 50,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'entity_reference_autocomplete',
@@ -179,7 +195,7 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
           'size' => 60,
           'placeholder' => '',
         ),
-        'weight' => -2,
+        'weight' => 50,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
@@ -189,6 +205,7 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setLabel(t('Title'))
       ->setDescription(t('The title of the Push Notification entity.'))
       ->setTranslatable(TRUE)
+      ->setRequired(TRUE)
       ->setSettings(array(
         'default_value' => '',
         'max_length' => 255,
@@ -197,11 +214,11 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -3,
+        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
-        'weight' => -3,
+        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -210,6 +227,7 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setLabel(t('Message'))
       ->setDescription(t('The message of the Push Notification entity.'))
       ->setTranslatable(TRUE)
+      ->setRequired(TRUE)
       ->setSettings(array(
         'default_value' => '',
         'max_length' => 255,
@@ -218,11 +236,11 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -4,
+        'weight' => 2,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
-        'weight' => -4,
+        'weight' => 2,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -235,6 +253,12 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the entity was created.'))
       ->setTranslatable(TRUE);
+
+    $fields['status'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Publishing status'))
+      ->setDescription(t('A boolean indicating whether the push_notification is published.'))
+      ->setTranslatable(TRUE)
+      ->setDefaultValue(FALSE);
 
     return $fields;
   }
