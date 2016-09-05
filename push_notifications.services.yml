@@ -11,3 +11,6 @@ services:
   push_notifications.message_sender_accounts:
     class: Drupal\push_notifications\PushNotificationsMessageSenderAccounts
     arguments: ['@push_notifications.dispatcher']
+  push_notifications.token_query:
+    class: Drupal\push_notifications\PushNotificationsTokenQuery
+    arguments: ['@entity.query', '@entity.manager']

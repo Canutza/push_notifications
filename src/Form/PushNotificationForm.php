@@ -7,11 +7,13 @@
 namespace Drupal\push_notifications\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\Query\Sql\QueryFactory;
+use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\Language;
 use Drupal\push_notifications\PushNotificationInterface;
+use Drupal\push_notifications\PushNotificationsTokenQuery;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 /**
  * Form controller for the push_notification entity edit forms.
@@ -19,12 +21,41 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @ingroup push_notifications
  */
 class PushNotificationForm extends ContentEntityForm  {
+  /**
+   * The token query.
+   *
+   * @var \Drupal\push_notifications\PushNotificationsTokenQuery
+   */
+  protected $token_query;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity.manager'),
+      $container->get('push_notifications.token_query')
+    );
+  }
+
+  /**
+   * PushNotificationForm constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\push_notifications\PushNotificationsTokenQuery $token_query
+   */
+  public function __construct(EntityManagerInterface $entity_manager, PushNotificationsTokenQuery $token_query) {
+    parent::__construct($entity_manager);
+    $this->token_query = $token_query;
+  }
+
+
 
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\content_entity_example\Entity\Contact */
+    /* @var $entity \Drupal\push_notifications\Entity\PushNotification */
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 
