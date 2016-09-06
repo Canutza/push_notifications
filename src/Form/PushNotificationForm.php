@@ -169,6 +169,27 @@ class PushNotificationForm extends ContentEntityForm {
             $tokens = $this->token_query->getTokensByNetwork($networks);
           }
         }
+
+        $messageSender = \Drupal::service('push_notifications.message_sender_list');
+        $messageSender->setTokens($tokens);
+        $messageSender->setMessage($message[0]['value'], $title[0]['value']);
+        $messageSender->dispatch();
+        $results = $messageSender->getResults();
+
+        // Display result for each network.
+        foreach ($results as $network => $result) {
+          if (empty($result['count_attempted'])) {
+            // Only display results for networks with tokens.
+            continue;
+          }
+          drupal_set_message($this->t('@network: Attempted to send @count_attempted tokens, sent @count_success.', array(
+            '@network' => strtoupper($network),
+            '@count_attempted' => $result['count_attempted'],
+            '@count_success' => $result['count_success'],
+          )));
+        }
+
+
         drupal_set_message($this->t('The push notification has been successfully send.'));
       }
     }

@@ -103,17 +103,20 @@ class PushNotificationsBroadcasterApns implements PushNotificationsBroadcasterIn
   /**
    * Setter function for message.
    *
-   * @param $message
+   * @param array $message
+   * @param null $title
    */
-  public function setMessage($message) {
+  public function setMessage($message, $title) {
     $this->message = $message;
 
     // Set the payload.
     $this->payload = array(
-      'aps' => array(
-        'alert' => $message,
-      ),
+      'alert' => $message,
     );
+
+    if (isset($title)) {
+      $this->payload['title'] = $title;
+    }
   }
 
   /**

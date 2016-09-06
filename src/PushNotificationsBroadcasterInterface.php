@@ -20,8 +20,11 @@ interface PushNotificationsBroadcasterInterface {
    * Set payload.
    *
    * @param array $payload Payload.
+   * @param null $title
+   *
+   * @return
    */
-  function setMessage($payload);
+  function setMessage($payload, $title);
 
   /**
    * Send the broadcast.

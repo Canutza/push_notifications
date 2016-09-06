@@ -21,6 +21,12 @@ abstract class PushNotificationsMessageSenderBase{
   protected $message;
 
   /**
+   * @var string $title
+   *   The title that will be used in the payload.
+   */
+  protected $title;
+
+  /**
    * @var array $tokens
    *   List of user tokens.
    */
@@ -83,11 +89,16 @@ abstract class PushNotificationsMessageSenderBase{
    * Setter function for message.
    *
    * @param string $message Message to send.
+   * @param $title
    * @throws \Exception Message needs to be a string.
    */
-  public function setMessage($message) {
+  public function setMessage($message, $title) {
     if (!is_string($message)) {
       throw new \Exception('Message needs to be a string.');
+    }
+
+    if (!is_string($title)) {
+      throw new \Exception('Title needs to be a string.');
     }
 
     // Allow other modules modify the message before it is sent.
@@ -100,6 +111,7 @@ abstract class PushNotificationsMessageSenderBase{
 
     // Truncate the message so that we don't exceed the limit of APNS.
     $this->message = Unicode::truncate($message, PUSH_NOTIFICATIONS_APNS_PAYLOAD_SIZE_LIMIT, TRUE, TRUE);
+    $this->title = $title;
   }
 
   /**
@@ -121,7 +133,7 @@ abstract class PushNotificationsMessageSenderBase{
     }
 
     // Generate and dispatch message.
-    $this->dispatcher->setMessage($this->message);
+    $this->dispatcher->setMessage($this->message, $this->title);
     $this->dispatcher->setTokens($this->tokens);
     $this->dispatcher->dispatch();
     $this->results = $this->dispatcher->getResults();

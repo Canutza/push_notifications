@@ -11,8 +11,8 @@ use Drupal\Core\Link;
 /**
  * OS device types IDs.
  */
-const PUSH_NOTIFICATIONS_TYPE_ID_IOS = 'apns';
-const PUSH_NOTIFICATIONS_TYPE_ID_ANDROID = 'gcm';
+const PUSH_NOTIFICATIONS_TYPE_ID_IOS = 'ios';
+const PUSH_NOTIFICATIONS_TYPE_ID_ANDROID = 'android';
 
 /**
  * APNS feedback host.

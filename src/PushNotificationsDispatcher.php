@@ -27,6 +27,12 @@ class PushNotificationsDispatcher {
   protected $message;
 
   /**
+   * @var string $title
+   *   Title.
+   */
+  protected $title;
+
+  /**
    * @var array $networks.
    *   Available networks.
    */
@@ -64,10 +70,15 @@ class PushNotificationsDispatcher {
 
       // Broadcast message.
       try {
-        $service_name = 'push_notifications.broadcaster_' . $network;
+        if ($network == 'ios') {
+          $service_name = 'push_notifications.broadcaster_apns';
+        }
+        elseif ($network == 'android') {
+          $service_name = 'push_notifications.broadcaster_gcm';
+        }
         $broadcaster = \Drupal::service($service_name);
         $broadcaster->setTokens($this->tokens[$network]);
-        $broadcaster->setMessage($this->message);
+        $broadcaster->setMessage($this->message, $this->title);
         $broadcaster->sendBroadcast();
         $this->results[$network] = $broadcaster->getResults();
       } catch (\Exception $e) {
@@ -83,16 +94,18 @@ class PushNotificationsDispatcher {
    * @param mixed $tokens
    */
   public function setTokens($tokens) {
-    $this->tokens = $this->groupTokensByType($tokens);
+    $this->tokens = $tokens;
   }
 
   /**
    * Setter method for message.
    *
    * @param mixed $message
+   * @param string $title
    */
-  public function setMessage($message) {
+  public function setMessage($message, $title) {
     $this->message = $message;
+    $this->title = $title;
   }
 
   /**
