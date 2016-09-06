@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @ingroup push_notifications
  */
-class PushNotificationForm extends ContentEntityForm  {
+class PushNotificationForm extends ContentEntityForm {
   /**
    * The token query.
    *
@@ -50,7 +50,6 @@ class PushNotificationForm extends ContentEntityForm  {
   }
 
 
-
   /**
    * {@inheritdoc}
    */
@@ -74,24 +73,30 @@ class PushNotificationForm extends ContentEntityForm  {
       );
 
       $form['networks'] = array(
-        '#type' => 'checkboxes',
-        '#multiple' => TRUE,
+        '#type' => 'select',
+        // This is mega annoying, if the type is 'checkboxes' the required state
+        // doesn't work. @todo: Research on how to fix it.
         '#title' => $this->t('Networks'),
+        '#multiple' => TRUE,
         '#options' => array(
           'apns' => $this->t('Apple'),
           'gcm' => $this->t('Android'),
         ),
-        '#description' => $this->t('Select the target networks for this notification.'),
         '#states' => array(
           'visible' => array(
             ':input[name="push_target"]' => array('value' => 'networks'),
           ),
+          'required' => array(
+            ':input[name="push_target"]' => array('value' => 'networks'),
+          ),
         ),
+        '#description' => $this->t('Select the target networks for this notification. You can select multiple by hold down the SHIFT key.'),
         '#weight' => 4,
       );
 
       $form['users'] = array(
         '#type' => 'entity_autocomplete',
+        '#title' => $this->t('User'),
         '#target_type' => 'user',
         '#tags' => TRUE,
         '#selection_settings' => [
@@ -103,9 +108,12 @@ class PushNotificationForm extends ContentEntityForm  {
           'visible' => array(
             ':input[name="push_target"]' => array('value' => 'users'),
           ),
+          'required' => array(
+            ':input[name="push_target"]' => array('value' => 'users'),
+          ),
         ),
         '#description' => $this->t('Add the users you want to send the notification to separated by a comma.'),
-        '#weight' => 4,
+        '#weight' => 5,
       );
 
     }
@@ -155,9 +163,11 @@ class PushNotificationForm extends ContentEntityForm  {
           }
           $tokens = $this->token_query->getTokensByUid($uids);
         }
-        else if ($push_target == 'networks') {
-          $networks = array_keys($form_state->getValue('networks'));
-
+        else {
+          if ($push_target == 'networks') {
+            $networks = $this->getCheckedCheckboxes($form_state->getValue('networks'));
+            $tokens = $this->token_query->getTokensByNetwork($networks);
+          }
         }
         drupal_set_message($this->t('The push notification has been successfully send.'));
       }
@@ -214,11 +224,6 @@ class PushNotificationForm extends ContentEntityForm  {
     return $element;
   }
 
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    return parent::validateForm($form, $form_state);
-
-  }
-
   /**
    * {@inheritdoc}
    */
@@ -226,6 +231,23 @@ class PushNotificationForm extends ContentEntityForm  {
     $form_state->setRedirect('entity.push_notification.collection');
     $entity = $this->getEntity();
     $entity->save();
+  }
+
+  public function getCheckedCheckboxes(array $input) {
+    // This is copied from the Drupal 8.2 version of the Checkboxes object
+    // @todo: Replace this with the actual function on upgrade
+
+    // Browsers do not include unchecked options in a form submission. The
+    // FormAPI tries to normalize this to keep checkboxes consistent with other
+    // form elements. Checkboxes show up as an array in the form of option_id =>
+    // option_id|0, where integer 0 is an unchecked option.
+    //
+    // @see \Drupal\Core\Render\Element\Checkboxes::valueCallback()
+    // @see https://www.w3.org/TR/html401/interact/forms.html#checkbox
+    $checked = array_filter($input, function ($value) {
+      return $value !== 0;
+    });
+    return array_keys($checked);
   }
 
 }
