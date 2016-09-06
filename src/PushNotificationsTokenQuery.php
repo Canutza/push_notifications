@@ -75,12 +75,12 @@ class PushNotificationsTokenQuery {
       return NULL;
     }
 
+    $tokens = array();
     $push_notifications_token_storage = $this->entityManager->getStorage('push_notifications_token');
     $push_notifications_token = $push_notifications_token_storage->loadByProperties(array('network' => $networks));
-    $tokens = array();
 
     foreach ($push_notifications_token as $pid => $push_notification_token) {
-      array_push($tokens, $push_notification_token->getToken());
+      $tokens[$push_notification_token->getNetwork()][] = $push_notification_token->getToken();
     }
 
     return $tokens;

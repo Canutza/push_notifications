@@ -79,8 +79,8 @@ class PushNotificationForm extends ContentEntityForm {
         '#title' => $this->t('Networks'),
         '#multiple' => TRUE,
         '#options' => array(
-          'apns' => $this->t('Apple'),
-          'gcm' => $this->t('Android'),
+          'ios' => $this->t('Apple'),
+          'android' => $this->t('Android'),
         ),
         '#states' => array(
           'visible' => array(
