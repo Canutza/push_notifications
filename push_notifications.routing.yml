@@ -52,9 +52,9 @@ entity.push_notification.collection:
   path: '/admin/content/push_notifications/list'
   defaults:
     _entity_list: 'push_notification'
-    _title: 'Push Notifications List'
+    _title: 'Push Notifications'
   requirements:
-    _permission: 'view push notification'
+    _permission: 'view push notifications'
 
 entity.push_notification.canonical:
   path: '/admin/content/push_notifications/{push_notification}'
@@ -62,13 +62,13 @@ entity.push_notification.canonical:
     _entity_view: 'push_notification'
     _title: 'Push notification'
   requirements:
-    _permission: 'view push notification'
+    _permission: 'view push notifications'
 
 push_notifications.push_notification_add:
   path: '/admin/content/push_notifications/add'
   defaults:
     _entity_form: push_notification.add
-    _title: 'Add a push notification'
+    _title: 'Create a Push Notification'
   requirements:
     _entity_create_access: 'push_notification'
 

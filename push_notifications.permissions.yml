@@ -10,17 +10,16 @@ view device tokens:
 administer device tokens:
   title: 'Administer device tokens'
   description: 'Allow users to administer device tokens.'
+add push notification:
+  title: 'Add push notification.'
+view push notifications:
+  title: 'View push notifications.'
+edit push notifications:
+  title: 'Edit push notifications.'
+delete push notifications:
+  title: 'Delete push notifications.'
 send push notifications:
   title: 'Send push notifications'
   description: 'Allow users to send push notifications to devices.'
-
-delete push notification:
-  title: 'Delete push notification content.'
-add push notification:
-  title: 'Add push notification content.'
-view push notification:
-  title: 'View push notification content.'
-edit push notification:
-  title: 'Edit push notification content.'
 administer push notification:
   title: 'Administer push notification settings.'

@@ -25,7 +25,7 @@ class PushNotificationListBuilder extends EntityListBuilder {
    */
   public function render() {
     $build['description'] = array(
-      '#markup' => $this->t('List of all the push notifications in the database.'),
+      '#markup' => $this->t('List of all push notifications in the database.'),
     );
 
     $build['table'] = parent::render();

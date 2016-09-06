@@ -202,7 +202,7 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setRequired(TRUE);
 
     $fields['title'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Push Notification Title'))
+      ->setLabel(t('Title'))
       ->setDescription(t('The title of the Push Notification entity.'))
       ->setTranslatable(TRUE)
       ->setRequired(TRUE)
@@ -255,8 +255,8 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setTranslatable(TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Publishing status'))
-      ->setDescription(t('A boolean indicating whether the push_notification is published.'))
+      ->setLabel(t('Sent status'))
+      ->setDescription(t('A boolean indicating whether the push_notification has been sent.'))
       ->setTranslatable(TRUE)
       ->setDefaultValue(FALSE);
 

@@ -177,11 +177,11 @@ class PushNotificationForm extends ContentEntityForm  {
     $element['unpushed']['#pushed_status'] = FALSE;
     $element['unpushed']['#dropbutton'] = 'save';
     if ($push_notification->isNew()) {
-      $element['unpushed']['#value'] = $this->t('Save as unpublished');
+      $element['unpushed']['#value'] = $this->t('Save as a draft');
     }
     else {
       if (!$pushed) {
-        $element['unpushed']['#value'] = $this->t('Save and keep unpublished');
+        $element['unpushed']['#value'] = $this->t('Save and keep in draft mode');
       }
       else {
         unset($element['unpushed']);

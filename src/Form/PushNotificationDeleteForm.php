@@ -37,7 +37,7 @@ class PushNotificationDeleteForm extends ContentEntityConfirmFormBase  {
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return $this->t('Delete');
+    return $this->t('Delete Push Notification');
   }
 
   /**
