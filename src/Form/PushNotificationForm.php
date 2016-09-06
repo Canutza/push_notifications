@@ -141,9 +141,24 @@ class PushNotificationForm extends ContentEntityForm  {
   function updateStatus($entity_type_id, PushNotificationInterface $push_notification, array $form, FormStateInterface $form_state) {
     $element = $form_state->getTriggeringElement();
     if (isset($element['#pushed_status'])) {
-      if ($push_notification->setPushed($element['#pushed_status'])) {
+      $push_notification->setPushed($element['#pushed_status']);
+      if ($element['#pushed_status']) {
         // @todo: Send notification
-        $values = $form_state->getValues();
+        $title = $form_state->getValue('title');
+        $message = $form_state->getValue('message');
+        $push_target = $form_state->getValue('push_target');
+        if ($push_target == 'users') {
+          $uids = array();
+          $target_ids = $form_state->getValue('users');
+          foreach ($target_ids as $target_id) {
+            array_push($uids, $target_id['target_id']);
+          }
+          $tokens = $this->token_query->getTokensByUid($uids);
+        }
+        else if ($push_target == 'networks') {
+          $networks = array_keys($form_state->getValue('networks'));
+
+        }
         drupal_set_message($this->t('The push notification has been successfully send.'));
       }
     }
@@ -197,6 +212,11 @@ class PushNotificationForm extends ContentEntityForm  {
     $element['submit']['#access'] = FALSE;
 
     return $element;
+  }
+
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    return parent::validateForm($form, $form_state);
+
   }
 
   /**
