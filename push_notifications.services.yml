@@ -5,6 +5,8 @@ services:
     class: Drupal\push_notifications\PushNotificationsBroadcasterGcm
   push_notifications.broadcaster_apns:
     class: Drupal\push_notifications\PushNotificationsBroadcasterApns
+  push_notifications.broadcaster_notificato:
+      class: Drupal\push_notifications\PushNotificationsBroadcasterNotificato
   push_notifications.message_sender_list:
     class: Drupal\push_notifications\PushNotificationsMessageSenderList
     arguments: ['@push_notifications.dispatcher']

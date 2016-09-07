@@ -71,7 +71,7 @@ class PushNotificationsDispatcher {
       // Broadcast message.
       try {
         if ($network == 'ios') {
-          $service_name = 'push_notifications.broadcaster_apns';
+          $service_name = 'push_notifications.broadcaster_notificato';
         }
         elseif ($network == 'android') {
           $service_name = 'push_notifications.broadcaster_gcm';

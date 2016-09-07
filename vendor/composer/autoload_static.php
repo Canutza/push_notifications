@@ -6,27 +6,9 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitf91f0c46b7f62edd7f6a0c7f75e32113
 {
-    public static $prefixesPsr0 = array (
-        'W' => 
-        array (
-            'Wrep\\Notificato\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/wrep/notificato/src',
-            ),
-        ),
-        'P' => 
-        array (
-            'Psr\\Log\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/psr/log',
-            ),
-        ),
-    );
-
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixesPsr0 = ComposerStaticInitf91f0c46b7f62edd7f6a0c7f75e32113::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

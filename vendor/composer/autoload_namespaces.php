@@ -6,6 +6,4 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Wrep\\Notificato\\' => array($vendorDir . '/wrep/notificato/src'),
-    'Psr\\Log\\' => array($vendorDir . '/psr/log'),
 );
