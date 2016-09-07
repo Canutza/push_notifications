@@ -58,7 +58,7 @@ class PushNotificationsTokenQuery {
     $tokens = array();
 
     foreach ($push_notifications_token as $pid => $push_notification_token) {
-      array_push($tokens, $push_notification_token->getToken());
+      $tokens[$push_notification_token->getNetwork()][] = $push_notification_token->getToken();
     }
 
     return $tokens;
