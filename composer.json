@@ -1,0 +1,5 @@
+{
+    "require": {
+        "wrep/notificato": "^1.2"
+    }
+}

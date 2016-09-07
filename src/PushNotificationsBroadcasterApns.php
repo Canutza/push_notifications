@@ -114,9 +114,6 @@ class PushNotificationsBroadcasterApns implements PushNotificationsBroadcasterIn
       'alert' => $message,
     );
 
-    if (isset($title)) {
-      $this->payload['title'] = $title;
-    }
   }
 
   /**
