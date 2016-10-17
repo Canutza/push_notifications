@@ -17,13 +17,6 @@ interface PushNotificationsBroadcasterInterface {
   function setTokens($tokens);
 
   /**
-   * Set payload.
-   *
-   * @param array $payload Payload.
-   */
-  function setMessage($payload);
-
-  /**
    * Send the broadcast.
    */
   function sendBroadcast();

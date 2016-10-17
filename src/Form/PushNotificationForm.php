@@ -108,6 +108,18 @@ class PushNotificationForm extends ContentEntityForm  {
         '#weight' => 4,
       );
 
+      $form['priority'] = array(
+        '#type' => 'radios',
+        '#title' => $this->t('Priority'),
+        '#required' => TRUE,
+        '#options' => array(
+          'normal' => $this->t('Normal'),
+          'high' => $this->t('High')
+        ),
+        '#description' => $this->t('Sets the priority of the message. Valid values are "normal" and "high." On iOS, these correspond to APNs priorities 5 and 10. By default, messages are sent with normal priority.'),
+        '#weight' => 5,
+      );
+
     }
 
     $form['langcode'] = array(
@@ -206,6 +218,64 @@ class PushNotificationForm extends ContentEntityForm  {
     $form_state->setRedirect('entity.push_notification.collection');
     $entity = $this->getEntity();
     $entity->save();
+  }
+
+  /**
+   * @param array $input
+   * @return array
+   */
+  public function getCheckedCheckboxes(array $input) {
+    // This is copied from the Drupal 8.2 version of the Checkboxes object
+    // @todo: Replace this with the actual function on upgrade
+
+    // Browsers do not include unchecked options in a form submission. The
+    // FormAPI tries to normalize this to keep checkboxes consistent with other
+    // form elements. Checkboxes show up as an array in the form of option_id =>
+    // option_id|0, where integer 0 is an unchecked option.
+    //
+    // @see \Drupal\Core\Render\Element\Checkboxes::valueCallback()
+    // @see https://www.w3.org/TR/html401/interact/forms.html#checkbox
+    $checked = array_filter($input, function ($value) {
+      return $value !== 0;
+    });
+    return array_keys($checked);
+  }
+
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $element = $form_state->getTriggeringElement();
+    if ($element['#pushed_status']) {
+      $title = $form_state->getValue('title');
+      $body = $form_state->getValue('message');
+      $push_target = $form_state->getValue('push_target');
+      $priority = $form_state->getValue('priority');
+      if ($push_target == 'users') {
+        $uids = array();
+        $target_ids = $form_state->getValue('users');
+        foreach ($target_ids as $target_id) {
+          array_push($uids, $target_id['target_id']);
+        }
+        $tokens = $this->token_query->getTokensByUid($uids);
+      }
+      else {
+        if ($push_target == 'networks') {
+          $networks = $this->getCheckedCheckboxes($form_state->getValue('networks'));
+          $tokens = $this->token_query->getTokensByNetwork($networks);
+        }
+      }
+
+      $messageSender = \Drupal::service('push_notifications.firebase_devices');
+//      $messageSender->setTokens($tokens);
+      $messageSender->setTokens(array('eFOvknBzgJg:APA91bHtRsRSvAAtntC8bfyGt50CdRfjVl6XrAxHe2YEFrZcT8xEX1lpKE2ClilQeyKYVH0aorIb_mO2FIxhbYIlboCqaT9h0AlBU4RCRwjQCpJCdxZrkvTA4qJrieDBXPyPaLpdwq9t'));
+      $messageSender->setNotification($body[0]['value'], $title[0]['value']);
+      $messageSender->setPriority($priority);
+      $messageSender->sendBroadcast();
+
+      drupal_set_message($this->t('The push notification has been successfully send.'));
+//      kint($messageSender->getResults());
+//      die();
+    }
+
+    parent::submitForm($form, $form_state);
   }
 
 }

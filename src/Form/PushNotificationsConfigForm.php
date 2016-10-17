@@ -20,6 +20,7 @@ class PushNotificationsConfigForm extends ConfigFormBase {
     return [
       'push_notifications.apns',
       'push_notifications.gcm',
+      'push_notifications.fcm',
     ];
   }
 
@@ -40,6 +41,7 @@ class PushNotificationsConfigForm extends ConfigFormBase {
     // Get config.
     $config_apns = $this->config('push_notifications.apns');
     $config_gcm = $this->config('push_notifications.gcm');
+    $config_fcm = $this->config('push_notifications.fcm');
 
     $configuration_apns_replacements = array(
       '@link' => 'http://blog.boxedice.com/2009/07/10/how-to-build-an-apple-push-notification-provider-server-tutorial/',
@@ -129,6 +131,20 @@ class PushNotificationsConfigForm extends ConfigFormBase {
       '#default_value' => $config_gcm->get('api_key'),
     );
 
+    // Firebase Cloud Messaging.
+    $form['fcm'] = array(
+      '#type' => 'fieldset',
+      '#title' => $this->t('Firebase Cloud Messaging'),
+      '#description' => $this->t('Enter your Firebase Cloud Messaging details.'),
+    );
+
+    $form['fcm']['fcm_api_key'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Firebase Cloud Messaging API Key'),
+      '#description' => t('Enter the API key for your Firebase Cloud project'),
+      '#default_value' => $config_fcm->get('api_key'),
+    );
+
 
     return parent::buildForm($form, $form_state);
   }
@@ -166,6 +182,11 @@ class PushNotificationsConfigForm extends ConfigFormBase {
     $config_gcm = $this->config('push_notifications.gcm');
     $config_gcm->set('api_key', $form_state->getValue('gcm_api_key'));
     $config_gcm->save();
+
+    // Store FCM config.
+    $config_fcm = $this->config('push_notifications.fcm');
+    $config_fcm->set('api_key', $form_state->getValue('fcm_api_key'));
+    $config_fcm->save();
   }
 
   /**

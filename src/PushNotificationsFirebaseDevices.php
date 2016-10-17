@@ -2,20 +2,18 @@
 
 /**
  * @file
- * Contains \Drupal\push_notifications\PushNotificationsBroadcasterGcm.
+ * Contains Drupal\push_notifications\PushNotificationsFirebaseDevices.
  */
 
 namespace Drupal\push_notifications;
 
-/**
- * Broadcasts Android messages.
- */
-class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInterface {
+
+class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterInterface {
 
   /**
-   * GCM notification post URL.
+   * Firebase Cloud Messaging Endpoint
    */
-  const PUSH_NOTIFICATIONS_GCM_SERVER_POST_URL = 'https://android.googleapis.com/gcm/send';
+  const PUSH_NOTIFICATIONS_FCM_ENDPOINT = 'https://fcm.googleapis.com/fcm/send';
 
   /**
    * @var array $tokens
@@ -28,6 +26,18 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
    *   Payload.
    */
   protected $payload;
+
+  /**
+   * @var array $notification
+   *   Notification.
+   */
+  protected $notification;
+
+  /**
+   * @var string $priority
+   *   The priority of the notification.
+   */
+  protected $priority;
 
   /**
    * @var int $countAttempted
@@ -48,44 +58,51 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
   protected $success = FALSE;
 
   /**
-   * @var string $statusMessage
-   *   Status messages.
-   */
-  protected $message;
-
-  /**
    * @var int $tokenBundles
    *   Number of token bundles.
    */
   private $tokenBundles;
 
   /**
-   * Constructor.
-   */
-  public function __construct() {
-  }
-
-  /**
-   * Setter function for tokens.
+   * Set tokens.
    *
-   * @param $tokens
+   * @param array $tokens Token list.
    */
-  public function setTokens($tokens) {
+  function setTokens($tokens) {
     $this->tokens = $tokens;
   }
 
   /**
-   * Setter function for message.
+   * Set payload.
    *
-   * @param $message
+   * @param array $payload Payload.
    */
-  public function setMessage($message) {
-    $this->message = $message;
+  function setPayload($payload) {
+    $this->payload = $payload;
 
-    // Set the payload.
-    $this->payload = array(
-      'alert' => $message,
+  }
+
+  /**
+   * Set notification data.
+   *
+   * @param $body
+   * @param $title
+   */
+  function setNotification($body, $title) {
+    $this->notification = array(
+      'title' => $title,
+      'body' => $body
     );
+
+  }
+
+  /**
+   * Set the priority of the notifications
+   *
+   * @param string $priority Priority
+   */
+  function setPriority($priority) {
+    $this->priority = $priority;
   }
 
   /**
@@ -95,7 +112,7 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
    *   Array of tokens and payload necessary to send out a broadcast.
    */
   public function sendBroadcast() {
-    if (empty($this->tokens) || empty($this->payload)) {
+    if (empty($this->tokens)) {
       throw new \Exception('No tokens or payload set.');
     }
 
@@ -122,19 +139,6 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
   }
 
   /**
-   * Get the results of a batch.
-   */
-  public function getResults() {
-    return array(
-      'network' => PUSH_NOTIFICATIONS_TYPE_ID_ANDROID,
-      'payload' => $this->payload,
-      'count_attempted' => $this->countAttempted,
-      'count_success' => $this->countSuccess,
-      'success' => $this->success,
-    );
-  }
-
-  /**
    * Send a token bundle.
    *
    * @param array $tokens
@@ -146,18 +150,18 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
     // Convert the payload into the correct format for payloads.
     // Prefill an array with values from other modules first.
     $data = array();
-    foreach ($this->payload as $key => $value) {
-      if ($key != 'alert') {
-        $data['data'][$key] = $value;
-      }
-    }
+
     // Fill the default values required for each payload.
     $data['registration_ids'] = $tokens;
     $data['collapse_key'] = (string) time();
-    $data['data']['message'] = $this->message;
+    if (isset($this->payload)) {
+      $data['data'] = $this->payload;
+    }
+    $data['notification'] = $this->notification;
+    $data['priority'] = $this->priority;
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, self::PUSH_NOTIFICATIONS_GCM_SERVER_POST_URL);
+    curl_setopt($curl, CURLOPT_URL, self::PUSH_NOTIFICATIONS_FCM_ENDPOINT);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $this->getHeaders());
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
     curl_setopt($curl, CURLOPT_POST, TRUE);
@@ -183,7 +187,7 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
    * Process the a batch result.
    *
    * @param array $result
-   *   Result of a bundle process, containing the curl info, reponse, and raw response.
+   *   Result of a bundle process, containing the curl info, response, and raw response.
    * @param array $tokens
    *   Tokens bundle that was processed.
    * @throws \Exception
@@ -229,12 +233,28 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
   }
 
   /**
+   * Retrieve results after broadcast was sent.
+   *
+   * @return array Array of data.
+   */
+  function getResults() {
+    return array(
+      'network' => PUSH_NOTIFICATIONS_TYPE_ID_ANDROID,
+      'payload' => $this->payload,
+      'notification' => $this->notification,
+      'count_attempted' => $this->countAttempted,
+      'count_success' => $this->countSuccess,
+      'success' => $this->success,
+    );
+  }
+
+  /**
    * Get the headers for sending broadcast.
    */
   private function getHeaders() {
     $headers = array();
-    $headers[] = 'Content-Type:application/json';
-    $headers[] = 'Authorization:key=' . \Drupal::config('push_notifications.gcm')->get('api_key');
+    $headers[] = 'Content-Type: application/json';
+    $headers[] = 'Authorization: key=' . \Drupal::config('push_notifications.fcm')->get('api_key');
     return $headers;
   }
 }
