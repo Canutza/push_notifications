@@ -40,12 +40,12 @@ interface PushNotificationInterface extends ContentEntityInterface, EntityOwnerI
   public function getMessage();
 
   /**
-   * Returns the entity push notification payload.
+   * Returns the entity's changed timestamp.
    *
    * @return string
-   *   The payload.
+   *   The changed timestamp for this entity.
    */
-//  public function getPayload();
+  public function getChanged();
 
   /**
    * Returns the entity's created timestamp.

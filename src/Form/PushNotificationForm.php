@@ -73,24 +73,20 @@ class PushNotificationForm extends ContentEntityForm {
       );
 
       $form['networks'] = array(
-        '#type' => 'select',
-        // This is mega annoying, if the type is 'checkboxes' the required state
-        // doesn't work. @todo: Research on how to fix it.
-        '#title' => $this->t('Networks'),
+        '#type' => 'checkboxes',
         '#multiple' => TRUE,
+        '#required' => TRUE,
+        '#title' => $this->t('Networks'),
         '#options' => array(
           'apns' => $this->t('Apple'),
           'gcm' => $this->t('Android'),
         ),
+        '#description' => $this->t('Select the target networks for this notification.'),
         '#states' => array(
           'visible' => array(
             ':input[name="push_target"]' => array('value' => 'networks'),
           ),
-          'required' => array(
-            ':input[name="push_target"]' => array('value' => 'networks'),
-          ),
         ),
-        '#description' => $this->t('Select the target networks for this notification. You can select multiple by hold down the SHIFT key.'),
         '#weight' => 4,
       );
 
@@ -148,29 +144,8 @@ class PushNotificationForm extends ContentEntityForm {
    */
   function updateStatus($entity_type_id, PushNotificationInterface $push_notification, array $form, FormStateInterface $form_state) {
     $element = $form_state->getTriggeringElement();
-    if (isset($element['#pushed_status'])) {
-      $push_notification->setSend($element['#pushed_status']);
-      if ($element['#pushed_status']) {
-        // @todo: Send notification
-        $title = $form_state->getValue('title');
-        $message = $form_state->getValue('message');
-        $push_target = $form_state->getValue('push_target');
-        if ($push_target == 'users') {
-          $uids = array();
-          $target_ids = $form_state->getValue('users');
-          foreach ($target_ids as $target_id) {
-            array_push($uids, $target_id['target_id']);
-          }
-          $tokens = $this->token_query->getTokensByUid($uids);
-        }
-        else {
-          if ($push_target == 'networks') {
-            $networks = $this->getCheckedCheckboxes($form_state->getValue('networks'));
-            $tokens = $this->token_query->getTokensByNetwork($networks);
-          }
-        }
-        drupal_set_message($this->t('The push notification has been successfully send.'));
-      }
+    if (isset($element['#send_status'])) {
+      $push_notification->setSend($element['#send_status']);
     }
   }
 
@@ -248,6 +223,36 @@ class PushNotificationForm extends ContentEntityForm {
       return $value !== 0;
     });
     return array_keys($checked);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $element = $form_state->getTriggeringElement();
+    $tokens = array();
+    if ($element['#send_status']) {
+      $title = $form_state->getValue('title');
+      $message = $form_state->getValue('message');
+      $push_target = $form_state->getValue('push_target');
+      if ($push_target == 'users') {
+        $uids = array();
+        $target_ids = $form_state->getValue('users');
+        foreach ($target_ids as $target_id) {
+          array_push($uids, $target_id['target_id']);
+        }
+        $tokens = $this->token_query->getTokensByUid($uids);
+      }
+      else {
+        if ($push_target == 'networks') {
+          $networks = $this->getCheckedCheckboxes($form_state->getValue('networks'));
+          $tokens = $this->token_query->getTokensByNetwork($networks);
+        }
+      }
+      // @TODO: Send notification
+      drupal_set_message($this->t('The push notification has been successfully send.'));
+    }
+    parent::submitForm($form, $form_state);
   }
 
 }

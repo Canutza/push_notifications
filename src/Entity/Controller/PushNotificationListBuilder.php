@@ -53,6 +53,7 @@ class PushNotificationListBuilder extends EntityListBuilder {
     $header['title'] = $this->t('Title');
     $header['message'] = $this->t('Message');
     $header['created'] = $this->t('Created');
+    $header['changed'] = $this->t('Pushed on');
     $header['send'] = $this->t('Send');
 
     return $header + parent::buildHeader();
@@ -64,6 +65,7 @@ class PushNotificationListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\push_notifications\Entity\PushNotificationsToken */
     $row['id'] = $entity->id();
+//    kint($entity);
     $row['user_id']['data'] = array(
       '#theme' => 'username',
       '#account' => $entity->getOwner(),
@@ -74,6 +76,7 @@ class PushNotificationListBuilder extends EntityListBuilder {
     );
     $row['message'] = $entity->getMessage();
     $row['created'] = $entity->getCreatedTime();
+    $row['changed'] = $entity->getChangedTime();
     $row['pushed'] = $entity->isSend() ? $this->t('Yes') : $this->t('No');
 
     return $row + parent::buildRow($entity);

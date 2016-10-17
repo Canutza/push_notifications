@@ -139,6 +139,13 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
   /**
    * {@inheritdoc}
    */
+  public function getChanged() {
+    return $this->get('changed')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getTokenId() {
     return $this->get('tid')->target_id;
   }
@@ -148,6 +155,13 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
    */
   public function getCreatedTime($type = 'short') {
     return \Drupal::service('date.formatter')->format($this->getCreated(), $type);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getChangedTime($type = 'short') {
+    return \Drupal::service('date.formatter')->format($this->getChanged(), $type);
   }
 
   /**
@@ -223,27 +237,31 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['message'] = BaseFieldDefinition::create('string')
+    $fields['message'] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Message'))
       ->setDescription(t('The message of the Push Notification entity.'))
       ->setTranslatable(TRUE)
       ->setRequired(TRUE)
       ->setSettings(array(
         'default_value' => '',
-        'max_length' => 255,
-        'text_processing' => 0,
+        'rows' => 2
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'type' => 'string',
+        'type' => 'string_long',
         'weight' => 2,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'string_textfield',
+        'type' => 'string_long',
         'weight' => 2,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+
+    $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setLabel(t('Pushed'))
+      ->setDescription(t('The time that the push notification was last edited and send.'))
+      ->setTranslatable(TRUE);
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language code'))
