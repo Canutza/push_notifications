@@ -103,15 +103,15 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
   /**
    * {@inheritdoc}
    */
-  public function isPushed() {
+  public function isSend() {
     return (bool) $this->getEntityKey('status');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setPushed($pushed) {
-    $this->set('status', $pushed ? NODE_PUBLISHED : NODE_NOT_PUBLISHED);
+  public function setSend($send) {
+    $this->set('status', $send ? PUSH_NOTIFICATION_SENT : PUSH_NOTIFICATION_DRAFT);
     return $this;
   }
 

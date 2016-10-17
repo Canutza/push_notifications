@@ -58,7 +58,7 @@ class PushNotificationForm extends ContentEntityForm {
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 
-    if (!$entity->isPushed()) {
+    if (!$entity->isSend()) {
 
       $form['push_target'] = array(
         '#type' => 'radios',
@@ -149,7 +149,7 @@ class PushNotificationForm extends ContentEntityForm {
   function updateStatus($entity_type_id, PushNotificationInterface $push_notification, array $form, FormStateInterface $form_state) {
     $element = $form_state->getTriggeringElement();
     if (isset($element['#pushed_status'])) {
-      $push_notification->setPushed($element['#pushed_status']);
+      $push_notification->setSend($element['#pushed_status']);
       if ($element['#pushed_status']) {
         // @todo: Send notification
         $title = $form_state->getValue('title');
@@ -181,42 +181,42 @@ class PushNotificationForm extends ContentEntityForm {
     $element = parent::actions($form, $form_state);
     $push_notification = $this->entity;
 
-    $pushed = $push_notification->isPushed() ? TRUE : FALSE;
+    $send = $push_notification->isSend() ? TRUE : FALSE;
 
-    $element['unpushed'] = $element['submit'];
-    $element['unpushed']['#pushed_status'] = FALSE;
-    $element['unpushed']['#dropbutton'] = 'save';
+    $element['unsend'] = $element['submit'];
+    $element['unsend']['#send_status'] = FALSE;
+    $element['unsend']['#dropbutton'] = 'save';
     if ($push_notification->isNew()) {
-      $element['unpushed']['#value'] = $this->t('Save as a draft');
+      $element['unsend']['#value'] = $this->t('Save as a draft');
     }
     else {
-      if (!$pushed) {
-        $element['unpushed']['#value'] = $this->t('Save and keep in draft mode');
+      if (!$send) {
+        $element['unsend']['#value'] = $this->t('Save and keep in draft mode');
       }
       else {
-        unset($element['unpushed']);
+        unset($element['unsend']);
       }
     }
-    $element['unpushed']['#weight'] = 0;
+    $element['unsend']['#weight'] = 0;
 
-    $element['pushed'] = $element['submit'];
-    $element['pushed']['#pushed_status'] = FALSE;
-    $element['pushed']['#dropbutton'] = 'save';
+    $element['send'] = $element['submit'];
+    $element['send']['#send_status'] = FALSE;
+    $element['send']['#dropbutton'] = 'save';
     if ($push_notification->isNew()) {
-      $element['pushed']['#value'] = $this->t('Save and send push notification');
-      $element['pushed']['#pushed_status'] = TRUE;
+      $element['send']['#value'] = $this->t('Save and send push notification');
+      $element['send']['#send_status'] = TRUE;
     }
     else {
-      if ($pushed) {
-        unset($element['pushed']);
+      if ($send) {
+        unset($element['send']);
         drupal_set_message($this->t('This push notification has already been sent.'), 'warning');
       }
       else {
-        $element['pushed']['#value'] = $this->t('Save and send push notification');
-        $element['pushed']['#pushed_status'] = TRUE;
+        $element['send']['#value'] = $this->t('Save and send push notification');
+        $element['send']['#send_status'] = TRUE;
       }
     }
-    $element['pushed']['#weight'] = 10;
+    $element['send']['#weight'] = 10;
 
     // Remove the "Save" button.
     $element['submit']['#access'] = FALSE;
