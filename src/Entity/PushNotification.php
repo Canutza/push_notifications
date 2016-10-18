@@ -260,8 +260,7 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Pushed'))
-      ->setDescription(t('The time that the push notification was last edited and send.'))
-      ->setTranslatable(TRUE);
+      ->setDescription(t('The time that the push notification was last edited and send.'));
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language code'))
@@ -269,13 +268,11 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
-      ->setDescription(t('The time that the entity was created.'))
-      ->setTranslatable(TRUE);
+      ->setDescription(t('The time that the entity was created.'));
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Sent status'))
       ->setDescription(t('A boolean indicating whether the push_notification has been sent.'))
-      ->setTranslatable(TRUE)
       ->setDefaultValue(FALSE);
 
     return $fields;
