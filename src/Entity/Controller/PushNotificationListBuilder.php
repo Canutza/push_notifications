@@ -65,7 +65,6 @@ class PushNotificationListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\push_notifications\Entity\PushNotificationsToken */
     $row['id'] = $entity->id();
-//    kint($entity);
     $row['user_id']['data'] = array(
       '#theme' => 'username',
       '#account' => $entity->getOwner(),
