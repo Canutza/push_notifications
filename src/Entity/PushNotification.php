@@ -263,7 +263,12 @@ class PushNotification extends ContentEntityBase implements PushNotificationInte
       ->setDescription(t('The time that the push notification was last edited and send.'));
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
-      ->setLabel(t('Language code'))
+      ->setLabel(t('Language'))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string_long',
+        'weight' => 2,
+      ))
       ->setDescription(t('The language code of the entity.'));
 
     $fields['created'] = BaseFieldDefinition::create('created')
