@@ -10,6 +10,7 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\Language;
+use Drupal\Core\Render\Element\Checkboxes;
 use Drupal\push_notifications\PushNotificationInterface;
 use Drupal\push_notifications\PushNotificationsTokenQuery;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -208,23 +209,6 @@ class PushNotificationForm extends ContentEntityForm {
     $entity->save();
   }
 
-  public function getCheckedCheckboxes(array $input) {
-    // This is copied from the Drupal 8.2 version of the Checkboxes object
-    // @todo: Replace this with the actual function on upgrade
-
-    // Browsers do not include unchecked options in a form submission. The
-    // FormAPI tries to normalize this to keep checkboxes consistent with other
-    // form elements. Checkboxes show up as an array in the form of option_id =>
-    // option_id|0, where integer 0 is an unchecked option.
-    //
-    // @see \Drupal\Core\Render\Element\Checkboxes::valueCallback()
-    // @see https://www.w3.org/TR/html401/interact/forms.html#checkbox
-    $checked = array_filter($input, function ($value) {
-      return $value !== 0;
-    });
-    return array_keys($checked);
-  }
-
   /**
    * {@inheritdoc}
    */
@@ -245,7 +229,7 @@ class PushNotificationForm extends ContentEntityForm {
       }
       else {
         if ($push_target == 'networks') {
-          $networks = $this->getCheckedCheckboxes($form_state->getValue('networks'));
+          $networks = Checkboxes::getCheckedCheckboxes($form_state->getValue('networks'));
           $tokens = $this->token_query->getTokensByNetwork($networks);
         }
       }
