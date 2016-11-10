@@ -59,7 +59,7 @@ class PushNotificationForm extends ContentEntityForm  {
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 
-    if (!$entity->isPushed()) {
+    if (!$entity->isSend()) {
 
       $form['push_target'] = array(
         '#type' => 'radios',
@@ -75,8 +75,6 @@ class PushNotificationForm extends ContentEntityForm  {
 
       $form['networks'] = array(
         '#type' => 'checkboxes',
-        '#multiple' => TRUE,
-        '#required' => TRUE,
         '#title' => $this->t('Networks'),
         '#options' => array(
           'apns' => $this->t('Apple'),
@@ -85,6 +83,9 @@ class PushNotificationForm extends ContentEntityForm  {
         '#description' => $this->t('Select the target networks for this notification.'),
         '#states' => array(
           'visible' => array(
+            ':input[name="push_target"]' => array('value' => 'networks'),
+          ),
+          'required' => array(
             ':input[name="push_target"]' => array('value' => 'networks'),
           ),
         ),
@@ -110,7 +111,7 @@ class PushNotificationForm extends ContentEntityForm  {
           ),
         ),
         '#description' => $this->t('Add the users you want to send the notification to separated by a comma.'),
-        '#weight' => 4,
+        '#weight' => 5,
       );
 
       $form['priority'] = array(
@@ -121,8 +122,9 @@ class PushNotificationForm extends ContentEntityForm  {
           'normal' => $this->t('Normal'),
           'high' => $this->t('High')
         ),
+        '#default_value' => 'normal',
         '#description' => $this->t('Sets the priority of the message. Valid values are "normal" and "high." On iOS, these correspond to APNs priorities 5 and 10. By default, messages are sent with normal priority.'),
-        '#weight' => 5,
+        '#weight' => 6,
       );
 
     }
@@ -158,11 +160,7 @@ class PushNotificationForm extends ContentEntityForm  {
   function updateStatus($entity_type_id, PushNotificationInterface $push_notification, array $form, FormStateInterface $form_state) {
     $element = $form_state->getTriggeringElement();
     if (isset($element['#pushed_status'])) {
-      if ($push_notification->setPushed($element['#pushed_status'])) {
-        // @todo: Send notification
-        $values = $form_state->getValues();
-        drupal_set_message($this->t('The push notification has been successfully send.'));
-      }
+      $push_notification->setSend($element['#pushed_status']);
     }
   }
 
@@ -173,7 +171,7 @@ class PushNotificationForm extends ContentEntityForm  {
     $element = parent::actions($form, $form_state);
     $push_notification = $this->entity;
 
-    $pushed = $push_notification->isPushed() ? TRUE : FALSE;
+    $pushed = $push_notification->isSend() ? TRUE : FALSE;
 
     $element['unpushed'] = $element['submit'];
     $element['unpushed']['#pushed_status'] = FALSE;
@@ -235,6 +233,8 @@ class PushNotificationForm extends ContentEntityForm  {
       $body = $form_state->getValue('message');
       $push_target = $form_state->getValue('push_target');
       $priority = $form_state->getValue('priority');
+      $tokens = array();
+
       if ($push_target == 'users') {
         $uids = array();
         $target_ids = $form_state->getValue('users');
@@ -245,21 +245,19 @@ class PushNotificationForm extends ContentEntityForm  {
       }
       else {
         if ($push_target == 'networks') {
-          $networks = $this->getCheckedCheckboxes($form_state->getValue('networks'));
+          $networks = Checkboxes::getCheckedCheckboxes($form_state->getValue('networks'));
           $tokens = $this->token_query->getTokensByNetwork($networks);
         }
       }
 
       $messageSender = \Drupal::service('push_notifications.firebase_devices');
-//      $messageSender->setTokens($tokens);
-      $messageSender->setTokens(array('eFOvknBzgJg:APA91bHtRsRSvAAtntC8bfyGt50CdRfjVl6XrAxHe2YEFrZcT8xEX1lpKE2ClilQeyKYVH0aorIb_mO2FIxhbYIlboCqaT9h0AlBU4RCRwjQCpJCdxZrkvTA4qJrieDBXPyPaLpdwq9t'));
+      $messageSender->setTokens($tokens);
       $messageSender->setNotification($body[0]['value'], $title[0]['value']);
       $messageSender->setPriority($priority);
       $messageSender->sendBroadcast();
 
       drupal_set_message($this->t('The push notification has been successfully send.'));
-//      kint($messageSender->getResults());
-//      die();
+
     }
 
     parent::submitForm($form, $form_state);
