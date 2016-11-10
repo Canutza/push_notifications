@@ -15,6 +15,16 @@ const PUSH_NOTIFICATIONS_TYPE_ID_IOS = 'apns';
 const PUSH_NOTIFICATIONS_TYPE_ID_ANDROID = 'gcm';
 
 /**
+ * Denotes that the push notification is not send, just saved as draft.
+ */
+const PUSH_NOTIFICATION_DRAFT = 0;
+
+/**
+ * Denotes that the push notification is send.
+ */
+const PUSH_NOTIFICATION_SENT = 1;
+
+/**
  * APNS feedback host.
  */
 const PUSH_NOTIFICATIONS_APNS_FEEDBACK_HOST = 'feedback.push.apple.com';

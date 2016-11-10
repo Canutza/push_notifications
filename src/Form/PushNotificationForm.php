@@ -10,10 +10,10 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\Language;
+use Drupal\Core\Render\Element\Checkboxes;
 use Drupal\push_notifications\PushNotificationInterface;
 use Drupal\push_notifications\PushNotificationsTokenQuery;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 
 /**
  * Form controller for the push_notification entity edit forms.
@@ -55,7 +55,7 @@ class PushNotificationForm extends ContentEntityForm  {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\push_notifications\Entity\PushNotification */
+    /* @var $entity \Drupal\content_entity_example\Entity\Contact */
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 
@@ -76,6 +76,7 @@ class PushNotificationForm extends ContentEntityForm  {
       $form['networks'] = array(
         '#type' => 'checkboxes',
         '#multiple' => TRUE,
+        '#required' => TRUE,
         '#title' => $this->t('Networks'),
         '#options' => array(
           'apns' => $this->t('Apple'),
@@ -92,6 +93,7 @@ class PushNotificationForm extends ContentEntityForm  {
 
       $form['users'] = array(
         '#type' => 'entity_autocomplete',
+        '#title' => $this->t('User'),
         '#target_type' => 'user',
         '#tags' => TRUE,
         '#selection_settings' => [
@@ -101,6 +103,9 @@ class PushNotificationForm extends ContentEntityForm  {
         ],
         '#states' => array(
           'visible' => array(
+            ':input[name="push_target"]' => array('value' => 'users'),
+          ),
+          'required' => array(
             ':input[name="push_target"]' => array('value' => 'users'),
           ),
         ),
@@ -221,26 +226,8 @@ class PushNotificationForm extends ContentEntityForm  {
   }
 
   /**
-   * @param array $input
-   * @return array
+   * {@inheritdoc}
    */
-  public function getCheckedCheckboxes(array $input) {
-    // This is copied from the Drupal 8.2 version of the Checkboxes object
-    // @todo: Replace this with the actual function on upgrade
-
-    // Browsers do not include unchecked options in a form submission. The
-    // FormAPI tries to normalize this to keep checkboxes consistent with other
-    // form elements. Checkboxes show up as an array in the form of option_id =>
-    // option_id|0, where integer 0 is an unchecked option.
-    //
-    // @see \Drupal\Core\Render\Element\Checkboxes::valueCallback()
-    // @see https://www.w3.org/TR/html401/interact/forms.html#checkbox
-    $checked = array_filter($input, function ($value) {
-      return $value !== 0;
-    });
-    return array_keys($checked);
-  }
-
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $element = $form_state->getTriggeringElement();
     if ($element['#pushed_status']) {
