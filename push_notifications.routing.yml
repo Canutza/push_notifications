@@ -9,14 +9,6 @@ push_notifications.push_notifications_config_form:
   options:
     _admin_route: TRUE
 
-push_notifications.send_message_form:
-  path: '/admin/config/services/push_notifications/send_message'
-  defaults:
-    _form: '\Drupal\push_notifications\Form\PushNotificationsSendMessageForm'
-    _title: 'Send Message'
-  requirements:
-    _permission: 'send push notifications'
-
 push_notifications.token.collection:
   path: '/admin/config/services/push_notifications/token/list'
   defaults:

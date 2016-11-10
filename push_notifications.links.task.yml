@@ -8,12 +8,6 @@ push_notifications.push_notifications_config_form:
   title: Configuration
   weight: 10
 
-push_notifications.send_message_form:
-  route_name: push_notifications.send_message_form
-  base_route: push_notifications.push_notifications_config_form
-  title: Send Message
-  weight: 20
-
 push_notifications.token.collection:
   route_name: push_notifications.token.collection
   base_route: push_notifications.push_notifications_config_form

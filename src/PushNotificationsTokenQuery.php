@@ -9,6 +9,7 @@ namespace Drupal\push_notifications;
 
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
+use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PushNotificationsTokenQuery {
@@ -50,11 +51,12 @@ class PushNotificationsTokenQuery {
    *
    * @param array $uids
    *   User IDs.
-   * @return array|null
+   * @return array
+   * @throws \InvalidArgumentException
    */
   public function getTokensByUid($uids) {
     if (!is_array($uids)) {
-      return NULL;
+      throw new InvalidArgumentException('The provided argument is invalid, the value should be an array.');
     }
 
     $push_notifications_token_storage = $this->entityManager->getStorage('push_notifications_token');
@@ -73,11 +75,12 @@ class PushNotificationsTokenQuery {
    *
    * @param array $networks
    *   Push Networks.
-   * @return array|null
+   * @return array
+   * @throws \InvalidArgumentException
    */
   public function getTokensByNetwork($networks) {
     if (!is_array($networks)) {
-      return NULL;
+      throw new InvalidArgumentException('The provided argument is invalid, the value should be an array.');
     }
 
     $push_notifications_token_storage = $this->entityManager->getStorage('push_notifications_token');
@@ -90,6 +93,20 @@ class PushNotificationsTokenQuery {
     }
 
     return $tokens;
+  }
+
+  /**
+   *
+   *
+   * @param $token
+   * @param $uid
+   * @return array
+   */
+  public function checkTokenByUid($token, $uid) {
+    $push_notifications_token_storage = $this->entityManager->getStorage('push_notifications_token');
+    $push_notifications_tokens = $push_notifications_token_storage->loadByProperties(array('uid' => $uid, 'token' => $token));
+
+    return $push_notifications_tokens;
   }
 
   /**
