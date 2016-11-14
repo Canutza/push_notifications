@@ -4,3 +4,15 @@ services:
   push_notifications.token_query:
     class: Drupal\push_notifications\PushNotificationsTokenQuery
     arguments: ['@entity.query', '@entity.manager']
+  push_notifications.dispatcher:
+    class: Drupal\push_notifications\PushNotificationsDispatcher
+  push_notifications.broadcaster_gcm:
+    class: Drupal\push_notifications\PushNotificationsBroadcasterGcm
+  push_notifications.broadcaster_apns:
+    class: Drupal\push_notifications\PushNotificationsBroadcasterApns
+  push_notifications.message_sender_list:
+    class: Drupal\push_notifications\PushNotificationsMessageSenderList
+    arguments: ['@push_notifications.dispatcher']
+  push_notifications.message_sender_accounts:
+    class: Drupal\push_notifications\PushNotificationsMessageSenderAccounts
+    arguments: ['@push_notifications.dispatcher']
