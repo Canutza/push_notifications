@@ -10,6 +10,7 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\Language;
+use Drupal\Core\Render\Element\Checkboxes;
 use Drupal\push_notifications\PushNotificationInterface;
 use Drupal\push_notifications\PushNotificationsTokenQuery;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @ingroup push_notifications
  */
-class PushNotificationForm extends ContentEntityForm  {
+class PushNotificationForm extends ContentEntityForm {
   /**
    * The token query.
    *
@@ -50,7 +51,6 @@ class PushNotificationForm extends ContentEntityForm  {
   }
 
 
-
   /**
    * {@inheritdoc}
    */
@@ -59,7 +59,7 @@ class PushNotificationForm extends ContentEntityForm  {
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 
-    if (!$entity->isPushed()) {
+    if (!$entity->isSend()) {
 
       $form['push_target'] = array(
         '#type' => 'radios',
@@ -76,6 +76,7 @@ class PushNotificationForm extends ContentEntityForm  {
       $form['networks'] = array(
         '#type' => 'checkboxes',
         '#multiple' => TRUE,
+        '#required' => TRUE,
         '#title' => $this->t('Networks'),
         '#options' => array(
           'apns' => $this->t('Apple'),
@@ -92,6 +93,7 @@ class PushNotificationForm extends ContentEntityForm  {
 
       $form['users'] = array(
         '#type' => 'entity_autocomplete',
+        '#title' => $this->t('User'),
         '#target_type' => 'user',
         '#tags' => TRUE,
         '#selection_settings' => [
@@ -103,9 +105,12 @@ class PushNotificationForm extends ContentEntityForm  {
           'visible' => array(
             ':input[name="push_target"]' => array('value' => 'users'),
           ),
+          'required' => array(
+            ':input[name="push_target"]' => array('value' => 'users'),
+          ),
         ),
         '#description' => $this->t('Add the users you want to send the notification to separated by a comma.'),
-        '#weight' => 4,
+        '#weight' => 5,
       );
 
     }
@@ -140,12 +145,8 @@ class PushNotificationForm extends ContentEntityForm  {
    */
   function updateStatus($entity_type_id, PushNotificationInterface $push_notification, array $form, FormStateInterface $form_state) {
     $element = $form_state->getTriggeringElement();
-    if (isset($element['#pushed_status'])) {
-      if ($push_notification->setPushed($element['#pushed_status'])) {
-        // @todo: Send notification
-        $values = $form_state->getValues();
-        drupal_set_message($this->t('The push notification has been successfully send.'));
-      }
+    if (isset($element['#send_status'])) {
+      $push_notification->setSend($element['#send_status']);
     }
   }
 
@@ -156,42 +157,42 @@ class PushNotificationForm extends ContentEntityForm  {
     $element = parent::actions($form, $form_state);
     $push_notification = $this->entity;
 
-    $pushed = $push_notification->isPushed() ? TRUE : FALSE;
+    $send = $push_notification->isSend() ? TRUE : FALSE;
 
-    $element['unpushed'] = $element['submit'];
-    $element['unpushed']['#pushed_status'] = FALSE;
-    $element['unpushed']['#dropbutton'] = 'save';
+    $element['unsend'] = $element['submit'];
+    $element['unsend']['#send_status'] = FALSE;
+    $element['unsend']['#dropbutton'] = 'save';
     if ($push_notification->isNew()) {
-      $element['unpushed']['#value'] = $this->t('Save as a draft');
+      $element['unsend']['#value'] = $this->t('Save as a draft');
     }
     else {
-      if (!$pushed) {
-        $element['unpushed']['#value'] = $this->t('Save and keep in draft mode');
+      if (!$send) {
+        $element['unsend']['#value'] = $this->t('Save and keep in draft mode');
       }
       else {
-        unset($element['unpushed']);
+        unset($element['unsend']);
       }
     }
-    $element['unpushed']['#weight'] = 0;
+    $element['unsend']['#weight'] = 0;
 
-    $element['pushed'] = $element['submit'];
-    $element['pushed']['#pushed_status'] = FALSE;
-    $element['pushed']['#dropbutton'] = 'save';
+    $element['send'] = $element['submit'];
+    $element['send']['#send_status'] = FALSE;
+    $element['send']['#dropbutton'] = 'save';
     if ($push_notification->isNew()) {
-      $element['pushed']['#value'] = $this->t('Save and send push notification');
-      $element['pushed']['#pushed_status'] = TRUE;
+      $element['send']['#value'] = $this->t('Save and send push notification');
+      $element['send']['#send_status'] = TRUE;
     }
     else {
-      if ($pushed) {
-        unset($element['pushed']);
+      if ($send) {
+        unset($element['send']);
         drupal_set_message($this->t('This push notification has already been sent.'), 'warning');
       }
       else {
-        $element['pushed']['#value'] = $this->t('Save and send push notification');
-        $element['pushed']['#pushed_status'] = TRUE;
+        $element['send']['#value'] = $this->t('Save and send push notification');
+        $element['send']['#send_status'] = TRUE;
       }
     }
-    $element['pushed']['#weight'] = 10;
+    $element['send']['#weight'] = 10;
 
     // Remove the "Save" button.
     $element['submit']['#access'] = FALSE;
@@ -206,6 +207,36 @@ class PushNotificationForm extends ContentEntityForm  {
     $form_state->setRedirect('entity.push_notification.collection');
     $entity = $this->getEntity();
     $entity->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $element = $form_state->getTriggeringElement();
+    $tokens = array();
+    if ($element['#send_status']) {
+      $title = $form_state->getValue('title');
+      $message = $form_state->getValue('message');
+      $push_target = $form_state->getValue('push_target');
+      if ($push_target == 'users') {
+        $uids = array();
+        $target_ids = $form_state->getValue('users');
+        foreach ($target_ids as $target_id) {
+          array_push($uids, $target_id['target_id']);
+        }
+        $tokens = $this->token_query->getTokensByUid($uids);
+      }
+      else {
+        if ($push_target == 'networks') {
+          $networks = Checkboxes::getCheckedCheckboxes($form_state->getValue('networks'));
+          $tokens = $this->token_query->getTokensByNetwork($networks);
+        }
+      }
+      // @TODO: Send notification
+      drupal_set_message($this->t('The push notification has been successfully send.'));
+    }
+    parent::submitForm($form, $form_state);
   }
 
 }

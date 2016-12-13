@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Contains Drupal\push_notifications\PushNotificationsTokenQuery.
@@ -12,7 +11,6 @@ use Drupal\Core\Entity\Query\QueryFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PushNotificationsTokenQuery {
-
   /**
    * @var \Drupal\Core\Entity\Query\QueryFactory
    */
@@ -25,7 +23,6 @@ class PushNotificationsTokenQuery {
 
   /**
    * PushNotificationsTokenQuery constructor.
-   *
    * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
    */
@@ -48,8 +45,7 @@ class PushNotificationsTokenQuery {
   /**
    * Get the push notification tokens by user ID.
    *
-   * @param array $uids
-   *   User IDs.
+   * @param $uids
    * @return array|null
    */
   public function getTokensByUid($uids) {
@@ -71,8 +67,7 @@ class PushNotificationsTokenQuery {
   /**
    * Get the push notification tokens by network.
    *
-   * @param array $networks
-   *   Push Networks.
+   * @param $networks
    * @return array|null
    */
   public function getTokensByNetwork($networks) {
@@ -82,9 +77,8 @@ class PushNotificationsTokenQuery {
 
     $push_notifications_token_storage = $this->entityManager->getStorage('push_notifications_token');
     $push_notifications_token = $push_notifications_token_storage->loadByProperties(array('network' => $networks));
-
-    // Retrieve all tokens into array.
     $tokens = array();
+
     foreach ($push_notifications_token as $pid => $push_notification_token) {
       array_push($tokens, $push_notification_token->getToken());
     }
@@ -100,9 +94,8 @@ class PushNotificationsTokenQuery {
   public function getAllTokens() {
     $push_notifications_token_storage = $this->entityManager->getStorage('push_notifications_token');
     $push_notifications_token = $push_notifications_token_storage->loadMultiple();
-
-    // Retrieve all tokens into array.
     $tokens = array();
+
     foreach ($push_notifications_token as $pid => $push_notification_token) {
       array_push($tokens, $push_notification_token->getToken());
     }

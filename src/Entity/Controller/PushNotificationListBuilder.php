@@ -53,7 +53,7 @@ class PushNotificationListBuilder extends EntityListBuilder {
     $header['title'] = $this->t('Title');
     $header['message'] = $this->t('Message');
     $header['created'] = $this->t('Created');
-    $header['pushed'] = $this->t('Pushed');
+    $header['pushed_on'] = $this->t('Pushed on');
 
     return $header + parent::buildHeader();
   }
@@ -74,7 +74,7 @@ class PushNotificationListBuilder extends EntityListBuilder {
     );
     $row['message'] = $entity->getMessage();
     $row['created'] = $entity->getCreatedTime();
-    $row['pushed'] = $entity->isPushed() ? $this->t('Yes') : $this->t('No');
+    $row['pushed_on'] = $entity->isSend() ? $entity->getChangedTime() : $this->t('N/A');
 
     return $row + parent::buildRow($entity);
   }
