@@ -250,7 +250,7 @@ class PushNotificationsBroadcasterApns implements PushNotificationsBroadcasterIn
    */
   public function getResults() {
     return array(
-      'network' => PUSH_NOTIFICATIONS_TYPE_ID_IOS,
+      'network' => PUSH_NOTIFICATIONS_NETWORK_ID_IOS,
       'payload' => $this->payload,
       'count_attempted' => $this->countAttempted,
       'count_success' => $this->countSuccess,
