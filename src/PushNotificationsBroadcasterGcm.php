@@ -126,7 +126,7 @@ class PushNotificationsBroadcasterGcm implements PushNotificationsBroadcasterInt
    */
   public function getResults() {
     return array(
-      'network' => PUSH_NOTIFICATIONS_TYPE_ID_ANDROID,
+      'network' => PUSH_NOTIFICATIONS_NETWORK_ID_ANDROID,
       'payload' => $this->payload,
       'count_attempted' => $this->countAttempted,
       'count_success' => $this->countSuccess,

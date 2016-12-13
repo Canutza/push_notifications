@@ -63,7 +63,7 @@ class PushNotificationForm extends ContentEntityForm  {
 
       $form['push_target'] = array(
         '#type' => 'radios',
-        '#title' => $this->t('Target type'),
+        '#title' => $this->t('Target'),
         '#required' => TRUE,
         '#options' => array(
           'networks' => $this->t('Network'),
