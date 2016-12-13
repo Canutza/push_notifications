@@ -41,6 +41,9 @@ use Drupal\user\UserInterface;
  *     "canonical" = "/push_notifications/token/{push_notifications_token}",
  *     "delete-form" = "/push_notifications/token/{push_notifications_token}/delete",
  *   },
+ *   constraints = {
+ *     "PushNotificationsTokenUserUnique" = {}
+ *   },
  * )
  */
 class PushNotificationsToken extends ContentEntityBase implements PushNotificationsTokenInterface {
@@ -176,8 +179,7 @@ class PushNotificationsToken extends ContentEntityBase implements PushNotificati
         'type' => 'string',
         'weight' => 1,
       ))
-      ->setDisplayConfigurable('view', TRUE)
-      ->addConstraint('PushNotificationsTokenUnique');
+      ->setDisplayConfigurable('view', TRUE);
 
     // Network.
     $fields['network'] = BaseFieldDefinition::create('string')

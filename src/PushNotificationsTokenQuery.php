@@ -87,6 +87,20 @@ class PushNotificationsTokenQuery {
   }
 
   /**
+   *
+   *
+   * @param $token
+   * @param $uid
+   * @return array
+   */
+  public function checkTokenByUid($token, $uid) {
+    $push_notifications_token_storage = $this->entityManager->getStorage('push_notifications_token');
+    $push_notifications_tokens = $push_notifications_token_storage->loadByProperties(array('uid' => $uid, 'token' => $token));
+
+    return $push_notifications_tokens;
+  }
+
+  /**
    * Get all the push notification tokens.
    *
    * @return array
