@@ -142,6 +142,7 @@ class PushNotificationsConfigForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Firebase Cloud Messaging API Key'),
       '#description' => t('Enter the API key for your Firebase Cloud project'),
+      '#maxlength' => 1024,
       '#default_value' => $config_fcm->get('api_key'),
     );
 

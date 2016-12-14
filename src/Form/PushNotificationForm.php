@@ -55,7 +55,7 @@ class PushNotificationForm extends ContentEntityForm  {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\content_entity_example\Entity\Contact */
+    /* @var $entity \Drupal\push_notifications\Entity\PushNotification */
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 
