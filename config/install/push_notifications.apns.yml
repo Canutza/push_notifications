@@ -1,9 +1,0 @@
-host: 'gateway.push.apple.com'
-certificate_random: ''
-notification_sound: 'default'
-query_feedback_service: TRUE
-stream_context_limit: 1
-environment: 'development'
-passphrase: ''
-certificate_folder: ''
-set_entrust_certificate: FALSE

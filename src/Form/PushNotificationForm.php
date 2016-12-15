@@ -77,8 +77,8 @@ class PushNotificationForm extends ContentEntityForm  {
         '#type' => 'checkboxes',
         '#title' => $this->t('Networks'),
         '#options' => array(
-          'apns' => $this->t('Apple'),
-          'gcm' => $this->t('Android'),
+          PUSH_NOTIFICATIONS_NETWORK_IOS => $this->t('Apple'),
+          PUSH_NOTIFICATIONS_NETWORK_ANDROID => $this->t('Android'),
         ),
         '#description' => $this->t('Select the target networks for this notification.'),
         '#states' => array(
@@ -255,8 +255,11 @@ class PushNotificationForm extends ContentEntityForm  {
       $messageSender->setNotification($body[0]['value'], $title[0]['value']);
       $messageSender->setPriority($priority);
       $messageSender->sendBroadcast();
+      $results = $messageSender->getResults();
 
-      drupal_set_message($this->t('The push notification has been successfully send.'));
+      if ($results->success) {
+        drupal_set_message($this->t('The push notification has been successfully send.'));
+      }
 
     }
 

@@ -1,42 +1,8 @@
 # Schema for the configuration files of the Push Notifications module.
-push_notifications.settings:
-
-push_notifications.apns:
+push_notifications.fcm:
   type: config_object
-  label: 'APNS Configuration'
-  mapping:
-    host:
-      type: string
-      label: 'APNS Hostname'
-    certificate_random:
-      type: string
-      label: 'Random suffix for APNS certificate file'
-    notification_sound:
-      type: string
-      label: 'Machine name for APNS notification sounds'
-    query_feedback_service:
-      type: boolean
-      label: 'Flag indicating if APNS feedback service should be called on cron'
-    stream_context_limit:
-      type: integer
-      label: 'Maximum number of messages to send per stream context'
-    environment:
-      type: string
-      label: 'APNS environment'
-    passphrase:
-      type: string
-      label: 'APNS certificate passphrase'
-    certificate_folder:
-      type: string
-      label: 'Manual directory for APNS certificate'
-    set_entrust_certificate:
-      type: boolean
-      label: 'Flag indicating if Entrust root certificate should be explicitly loaded'
-
-push_notifications.gcm:
-  type: config_object
-  label: 'GCM Configuration'
+  label: 'FCM Key'
   mapping:
       api_key:
         type: string
-        label: 'GCM API Key'
+        label: 'FCM Key'

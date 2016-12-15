@@ -11,8 +11,8 @@ use Drupal\Core\Link;
 /**
  * OS device network IDs.
  */
-const PUSH_NOTIFICATIONS_NETWORK_ID_IOS = 'apns';
-const PUSH_NOTIFICATIONS_NETWORK_ID_ANDROID = 'gcm';
+const PUSH_NOTIFICATIONS_NETWORK_IOS = 'ios';
+const PUSH_NOTIFICATIONS_NETWORK_ANDROID = 'android';
 
 /**
  * Denotes that the push notification is not send, just saved as draft.
@@ -23,21 +23,6 @@ const PUSH_NOTIFICATION_DRAFT = 0;
  * Denotes that the push notification is send.
  */
 const PUSH_NOTIFICATION_SENT = 1;
-
-/**
- * APNS feedback host.
- */
-const PUSH_NOTIFICATIONS_APNS_FEEDBACK_HOST = 'feedback.push.apple.com';
-
-/**
- * APNS feedback port.
- */
-const PUSH_NOTIFICATIONS_APNS_FEEDBACK_PORT = 2196;
-
-/**
- * APNS size limit for individual payload, in bytes.
- */
-const PUSH_NOTIFICATIONS_APNS_PAYLOAD_SIZE_LIMIT = 2048;
 
 /**
  * Implements hook_help().
@@ -73,163 +58,4 @@ function push_notifications_get_networks() {
     PUSH_NOTIFICATIONS_NETWORK_ID_IOS,
     PUSH_NOTIFICATIONS_NETWORK_ID_ANDROID,
   );
-}
-
-/**
- * Generate and set the random file ending for APNS certificates.
- */
-function push_notifications_set_random_certificate_string() {
-  // Generate a random 10-digit string.
-  $random_string = substr(md5(microtime()), 0, 10);
-
-  // Write random string to variables.
-  $config = \Drupal::service('config.factory')->getEditable('push_notifications.apns');
-  $config->set('certificate_random', $random_string);
-  $config->save();
-}
-
-/**
- * Get name of random certificate.
- *
- * @param string $environment
- *   Environment name.
- *
- * @return string
- *   Certificate filename.
- */
-function push_notifications_get_certificate_name($environment = 'development') {
-  $filename = array(
-    'apns',
-    $environment,
-    \Drupal::config('push_notifications.apns')->get('certificate_random'),
-  );
-  return implode('-', $filename) . '.pem';
-
-}
-
-/**
- * Determine if this user has already stored a token
- * in the database. The same device token can be
- * registered for multiple users, because multiple
- * users can login from the same device.
- *
- * @param $token
- *   Device Token.
- * @param $uid
- *   User ID.
- * @param $exclude
- *   Set this to true to find (at least one) other user(s) who have this
- *   token stored. Optional, defaults to false.
- *
- * @return
- *   User ID of token, if found.
- */
-function push_notifications_find_token($token = '', $uid = '', $exclude = FALSE) {
-  if ($token == '') {
-    return FALSE;
-  }
-
-  $query = db_select('push_notifications_tokens', 'pnt');
-  $query->fields('pnt', array('token'));
-  $query->condition('pnt.token', $token);
-  if ($exclude) {
-    $query->condition('pnt.uid', $uid, '!=');
-    $query->range(0, 1);
-  }
-  else {
-    $query->condition('pnt.uid', $uid);
-  }
-
-  $result = $query->execute();
-  return $result->fetchField();
-}
-
-/**
- * Determine all recipients from a specific network.
- *
- * @param array $filters Filter option for query. Allows filtering by:
- *   - Language (key = language)
- *   - Networks (key = networks, value = array)
- *   - Account type (key = account_type)
- * @param $raw
- *   Boolean, set true to retrieve the raw query results.
- *
- * @return mixed Array of results, null if no entries.
- */
-function push_notifications_get_tokens($filters = array(), $raw = FALSE) {
-  // Validate format of filters argument.
-  if (!is_array($filters)) {
-    return FALSE;
-  }
-
-  // Select all tokens for this type id.
-  $query = db_select('push_notifications_tokens', 'pnt');
-  $query->fields('pnt');
-
-  // Filter by network, if required.
-  if (array_key_exists('networks', $filters) ) {
-    $query->condition('pnt.network', $filters['networks'], 'IN');
-  }
-
-  // Filter by language, if required.
-  if (array_key_exists('language', $filters) && is_string($filters['language'])) {
-    $query->condition('pnt.language', $filters['language']);
-  }
-
-  // Filter by anonymous vs. authenticated users.
-  if (
-    array_key_exists('account_type', $filters) &&
-    in_array($filters['account_type'], array('anonymous', 'authenticated'))
-  ) {
-    switch ($filters['account_type']) {
-      case 'anonymous':
-        $query->condition('pnt.uid', 0);
-        break;
-      case 'authenticated':
-        $query->condition('pnt.uid', 0, '!=');
-        break;
-    }
-  }
-
-  $result = $query->execute();
-
-  // Return raw result, if needed.
-  if ($raw) {
-    return $result;
-  }
-  // Otherwise, create an array of tokens.
-  else {
-    $tokens = array();
-    foreach ($result as $record) {
-      $tokens[] = $record;
-    }
-    return $tokens;
-  }
-}
-
-
-/**
- * Determine all tokens for a specfic user.
- *
- * @param int $uid User ID.
- * @return array Array of token database records.
- *
- */
-function push_notification_get_user_tokens($uid) {
-  if (!is_numeric($uid)) {
-    return FALSE;
-  }
-
-  // Select all tokens for this user.
-  $query = db_select('push_notifications_tokens', 'pnt');
-  $query->fields('pnt');
-  $query->condition('pnt.uid', $uid);
-  $result = $query->execute();
-
-  $tokens = array();
-  foreach ($result as $record) {
-    $tokens[$record->token] = $record;
-  }
-
-  return $tokens;
 }

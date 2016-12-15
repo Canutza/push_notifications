@@ -113,7 +113,10 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
    */
   public function sendBroadcast() {
     if (empty($this->tokens)) {
-      throw new \Exception('No tokens or payload set.');
+      $message = t('No tokens have been found.');
+      \Drupal::logger('push_notifications')->alert($message);
+      drupal_set_message($message, 'error');
+      return;
     }
 
     // Set token bundles.
@@ -179,7 +182,6 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
     return array(
       'info' => $info,
       'response' => $response,
-      'response_raw' => $response_raw,
     );
   }
 
@@ -196,14 +198,14 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
   private function processResult($result, $tokens) {
     // If connection is unauthorized, throw Exception.
     if ($result['info']['http_code'] != 200) {
-      throw new \Exception('Connection could not be authorized with Google Play. Check your API key.');
+      throw new \Exception('Connection could not be authorized with FCM.');
     }
 
     // If Google returns a 200 reply, but that reply includes an error,
     // log the error message.
-    if ($result['info']['http_code'] == 200 && (!empty($result['response']->failure))) {
+    if ($result['info']['http_code'] == 200 && (!$result['response']->failure)) {
       \Drupal::logger('push_notifications')->notice("Google's Server returned an error: @response_raw", array(
-        '@response_raw' => $result['response_raw'],
+        '@response' => $result['response'],
       ));
 
       // Analyze the failure.
@@ -218,8 +220,8 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
             $entityTypeManager = \Drupal::entityTypeManager()->getStorage($entity_type);
             $entity = $entityTypeManager->load(array_shift($entity_ids));
             $entity->delete();
-            \Drupal::logger('push_notifications')->notice("GCM token not valid anymore. Removing token @token", array(
-              '@$token' => $tokens[$token_index],
+            \Drupal::logger('push_notifications')->notice("FCM token not valid anymore. Removing token @token", array(
+              '@token' => $tokens[$token_index],
             ));
           }
         }
@@ -235,11 +237,10 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
   /**
    * Retrieve results after broadcast was sent.
    *
-   * @return array Array of data.
+   * @return object
    */
   function getResults() {
-    return array(
-      'network' => PUSH_NOTIFICATIONS_TYPE_ID_ANDROID,
+    return (object) array(
       'payload' => $this->payload,
       'notification' => $this->notification,
       'count_attempted' => $this->countAttempted,
