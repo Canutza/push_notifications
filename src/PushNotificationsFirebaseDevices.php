@@ -203,11 +203,7 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
 
     // If Google returns a 200 reply, but that reply includes an error,
     // log the error message.
-    if ($result['info']['http_code'] == 200 && (!$result['response']->failure)) {
-      \Drupal::logger('push_notifications')->notice("Google's Server returned an error: @response_raw", array(
-        '@response' => $result['response'],
-      ));
-
+    if ($result['info']['http_code'] == 200 && ($result['response']->failure > 0)) {
       // Analyze the failure.
       foreach ($result['response']->results as $token_index => $message_result) {
         if (!empty($message_result->error)) {
@@ -220,8 +216,10 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
             $entityTypeManager = \Drupal::entityTypeManager()->getStorage($entity_type);
             $entity = $entityTypeManager->load(array_shift($entity_ids));
             $entity->delete();
-            \Drupal::logger('push_notifications')->notice("FCM token not valid anymore. Removing token @token", array(
+            \Drupal::logger('push_notifications')->notice("FCM token not valid anymore. Removing token '@token', for uid '@uid' and network '@network'.", array(
               '@token' => $tokens[$token_index],
+              '@uid' => $entity->getOwnerId(),
+              '@network' => $entity->getNetwork(),
             ));
           }
         }
