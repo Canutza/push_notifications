@@ -105,18 +105,19 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
     $this->priority = $priority;
   }
 
+
   /**
    * Send the broadcast message.
    *
-   * @throws \Exception
-   *   Array of tokens and payload necessary to send out a broadcast.
+   * @return bool
    */
   public function sendBroadcast() {
     if (empty($this->tokens)) {
       $message = t('No tokens have been found.');
       \Drupal::logger('push_notifications')->alert($message);
       drupal_set_message($message, 'error');
-      return;
+
+      return FALSE;
     }
 
     // Set token bundles.
@@ -134,11 +135,14 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
         $this->processResult($result, $bundledTokens);
       } catch (\Exception $e) {
         \Drupal::logger('push_notifications')->error($e->getMessage());
+        drupal_set_message($e->getMessage(), 'error');
+
+        return FALSE;
       }
     }
 
     // Mark success as true.
-    $this->success = TRUE;
+    return $this->success = TRUE;
   }
 
   /**
@@ -198,7 +202,7 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
   private function processResult($result, $tokens) {
     // If connection is unauthorized, throw Exception.
     if ($result['info']['http_code'] != 200) {
-      throw new \Exception('Connection could not be authorized with FCM.');
+      throw new \Exception('Connection could not be authorized with FCM. Please check if your key is valid.');
     }
 
     // If Google returns a 200 reply, but that reply includes an error,
