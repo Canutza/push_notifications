@@ -25,7 +25,7 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
    * @var array $payload
    *   Payload.
    */
-  protected $payload;
+  protected $data_payload;
 
   /**
    * @var array $notification
@@ -75,10 +75,10 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
   /**
    * Set payload.
    *
-   * @param array $payload Payload.
+   * @param array $data_payload Payload.
    */
-  function setPayload($payload) {
-    $this->payload = $payload;
+  function setDataPayload($data_payload) {
+    $this->data_payload = $data_payload;
 
   }
 
@@ -166,6 +166,9 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
     }
     $data['notification'] = $this->notification;
     $data['priority'] = $this->priority;
+    if (!empty($this->data_payload)) {
+      $data['data'] = $this->data_payload;
+    }
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, self::PUSH_NOTIFICATIONS_FCM_ENDPOINT);
@@ -243,7 +246,7 @@ class PushNotificationsFirebaseDevices implements PushNotificationsBroadcasterIn
    */
   function getResults() {
     return (object) array(
-      'payload' => $this->payload,
+      'data_payload' => $this->data_payload,
       'notification' => $this->notification,
       'count_attempted' => $this->countAttempted,
       'count_success' => $this->countSuccess,

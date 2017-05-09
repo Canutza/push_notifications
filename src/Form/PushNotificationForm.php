@@ -250,14 +250,9 @@ class PushNotificationForm extends ContentEntityForm  {
         }
       }
 
-      $messageSender = \Drupal::service('push_notifications.firebase_devices');
-      $messageSender->setTokens($tokens);
-      $messageSender->setNotification($body[0]['value'], $title[0]['value']);
-      $messageSender->setPriority($priority);
-      $messageSender->sendBroadcast();
-      $results = $messageSender->getResults();
+      $push_notification_results = send_push_notification_fcm($tokens, $body[0]['value'], $title[0]['value'], $priority);
 
-      if ($results->success) {
+      if ($push_notification_results->success) {
         drupal_set_message($this->t('The push notification has been successfully send.'));
       }
 

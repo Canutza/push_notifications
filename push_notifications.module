@@ -51,11 +51,27 @@ function push_notifications_help($route_name, RouteMatchInterface $route_match) 
 }
 
 /**
- * Get available networks.
+ * Send a push notification through the FCM service
+ *
+ * @param $tokens
+ * @param $body
+ * @param $title
+ * @param $priority
+ * @param array $data_payload
+ *
+ * @return mixed
  */
-function push_notifications_get_networks() {
-  return array(
-    PUSH_NOTIFICATIONS_NETWORK_ID_IOS,
-    PUSH_NOTIFICATIONS_NETWORK_ID_ANDROID,
-  );
+function send_push_notification_fcm($tokens, $body, $title, $priority, $data_payload = array()) {
+  // Allow other modules to alter the $messageSend before sending the
+  // notifications by invoking: hook_push_notifications_fcm_alter().
+  \Drupal::moduleHandler()->alter('send_push_notification_fcm', $tokens, $body, $title, $priority, $data_payload);
+
+  $messageSender = \Drupal::service('push_notifications.firebase_devices');
+  $messageSender->setTokens($tokens);
+  $messageSender->setNotification($body, $title);
+  $messageSender->setPriority($priority);
+  $messageSender->setDataPayload($data_payload);
+  $messageSender->sendBroadcast();
+
+  return $messageSender->getResults();
 }
